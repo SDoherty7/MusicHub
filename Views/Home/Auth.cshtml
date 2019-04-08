@@ -1,0 +1,188 @@
+﻿
+@{
+    ViewData["Title"] = "Auth";
+}
+
+@{
+    ViewBag.Title = "Auth";
+}
+<head>
+    <style>
+
+        .artwork {
+            position: relative;
+            float: left;
+            width: 50%;
+            padding: 5px;
+        }
+
+        .row::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+
+        .albumartwork {
+            width: 100%;
+            height: auto;
+        }
+
+        .overlay1 {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            width: 100%;
+            opacity: 0;
+            transition: .5s ease;
+            background-color: rgb(30, 30, 30);
+        }
+
+        .artwork:hover .overlay1 {
+            opacity: 1;
+        }
+
+        .textoverlay {
+            color: white;
+            font-size: 20px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
+        }
+    </style>
+
+</head>
+
+<div id="header">
+    <h1>@ViewBag.Users  welcome to your Music Hub!</h1>
+
+</div>
+<div id="content">
+    <div id="main" style="display:inline-block;">
+        <div id="widget" w-type="event-discovery" w-tmapikey="ZgYSxFmoUdl5nqXPzxFJ7OWpqG0ZLX2W" w-keyword="Music" w-theme="oldschool" w-colorscheme="light" w-width="200" w-height="500" w-size="30" w-border="2" w-borderradius="4" w-postalcode="" w-radius="25" w-period="month" w-layout="vertical" w-attractionid="" w-promoterid="" w-venueid="" w-affiliateid="" w-segmentid="" w-proportion="custom" w-titlelink="off" w-sorting="groupByName" w-id="id_hgcxr" w-countrycode="IE" w-source="" w-city="" w-latlong="">
+
+        </div>
+
+        <div id="gigs">
+            <table>
+                <tr>
+                    <th>Event</th>
+                    <th>Link</th>
+                </tr>
+
+
+                @if (ViewBag.Name != null)
+                {
+                    for (var i = 0; i < 6; i++)
+                    {
+                        <tr>
+                            <td>
+                                @ViewBag.Name[i]
+                            </td>
+                            <td>
+                                <a href="@ViewBag.Url1[i]"> Go to event </a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </table>
+        </div>
+
+        <div id="right" style="display:inline-block;width:50%;">
+
+            @if (ViewBag.Artwork != null)
+            {
+
+                for (int i = 0; i < ViewBag.Artwork.Count; i++)
+                {
+                    string item = ViewBag.Artwork[i];
+                    string item2 = ViewBag.Url[i];
+                    string item3 = ViewBag.Album[i];
+                    <<div class="row">
+                        <div class="artwork">
+                            <a href="@item2"><img src="@item" alt="album" class="albumartwork"></a>
+                            <div class="overlay1">
+                                <a href="@item2"></a>
+                                <div class="textoverlay"> <a href="@item2"> @item3 </a></div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            }
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript" language="javascript">
+    var hashes = window.location.hash;
+    hashes = hashes.replace('#', '?');
+    if (hashes !== "")
+        window.location = hashes;
+</script>
+
+
+
+
+<script src="https://ticketmaster-api-staging.github.io/products-and-docs/widgets/event-discovery/1.0.0/lib/main-widget.js"></script>
+
+
+
+<script type="text/javascript" language="javascript">
+
+        //This is an alternative method for making a call to the ticketmaster api this time in JavaScript
+        //The method again takes in the users artists and checks if they have any upcoming events
+        const Http = new XMLHttpRequest();
+        //Return all ticketmaster music events in Ireland
+        const url = 'https://app.ticketmaster.com/discovery/v2/events.json?countryCode=IE&city=Dublin&classificationName=music&apikey=ZgYSxFmoUdl5nqXPzxFJ7OWpqG0ZLX2W&size=200';
+        Http.open("GET", url, true);
+        Http.send();
+        Http.onreadystatechange = (e) => {
+            if (Http.readyState == 4 && Http.status == 200) {
+
+                console.log("testee");
+                data = JSON.parse(Http.responseText);
+
+
+                for (i in data._embedded.events) {
+                        var event = data._embedded.events[i].name;
+                        var txt;
+                        //Get users artists from the controller
+                        var artist = @Html.Raw(Json.Serialize(ViewBag.Artists));
+
+                        //txt += "<table border='1'>"
+                        for (var k = 0; k < artist.length; k++) {
+
+                            var gigs = [];
+                            var music = artist[i];
+                            //If the event matches the artist then add to the array
+                            var n = event.includes(music);
+                            if (n == true && music != "And")
+                            {
+                                varobj = { table: "concerts", limit: 20 };
+                                gigs[gigs.length] = music; 
+                             }
+
+                            //Get unique values to prevent printing out the saame events
+                            let uniquearr = Array.from(new Set(gigs));
+                            for (j in uniquearr) {
+                                document.getElementById("gigs").innerHTML = uniquearr[i];
+                            }
+
+                        }
+                     }
+
+            } else {
+                console.log('Error', e); // Log any error to the console
+            }
+
+        }
+</script>
+
+
+
